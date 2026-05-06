@@ -9,6 +9,7 @@ class TimeSlotPicker extends StatelessWidget {
   final Set<String> pastSlots; // slots that are in the past (today only)
   final ValueChanged<String> onSlotSelected;
   final VoidCallback? onPastSlotTapped; // callback when user taps a past slot
+  final VoidCallback? onFullSlotTapped; // callback when user taps a full slot
 
   const TimeSlotPicker({
     super.key,
@@ -18,6 +19,7 @@ class TimeSlotPicker extends StatelessWidget {
     this.pastSlots = const {},
     required this.onSlotSelected,
     this.onPastSlotTapped,
+    this.onFullSlotTapped,
   });
 
   @override
@@ -40,24 +42,50 @@ class TimeSlotPicker extends StatelessWidget {
         final isPast = pastSlots.contains(slot);
         final isDisabled = isFull || isPast;
 
+        final int remaining = maxAppointmentsPerSlot - count;
+        
+        Color bgColor;
+        Color borderColor;
+        Color textColor;
+        String bottomText;
+        Color bottomTextColor;
+
+        if (isPast) {
+          bgColor = Colors.grey.shade100;
+          borderColor = Colors.grey.shade300;
+          textColor = Colors.grey;
+          bottomText = 'Past';
+          bottomTextColor = Colors.grey.shade500;
+        } else if (isFull) {
+          bgColor = Colors.grey.shade200;
+          borderColor = Colors.grey.shade400;
+          textColor = Colors.grey.shade700;
+          bottomText = 'FULL';
+          bottomTextColor = Colors.grey.shade600;
+        } else if (remaining == 1) {
+          bgColor = isSelected ? Colors.orange : Colors.orange.shade50;
+          borderColor = isSelected ? Colors.orange : Colors.orange.shade300;
+          textColor = isSelected ? Colors.white : AppColors.textPrimary;
+          bottomText = '1 slot left';
+          bottomTextColor = isSelected ? Colors.white70 : Colors.orange.shade700;
+        } else {
+          bgColor = isSelected ? Colors.green : Colors.green.shade50;
+          borderColor = isSelected ? Colors.green : Colors.green.shade300;
+          textColor = isSelected ? Colors.white : AppColors.textPrimary;
+          bottomText = 'Available';
+          bottomTextColor = isSelected ? Colors.white70 : Colors.green.shade700;
+        }
+
         return GestureDetector(
           onTap: isDisabled
-              ? (isPast ? onPastSlotTapped : null)
+              ? (isPast ? onPastSlotTapped : onFullSlotTapped)
               : () => onSlotSelected(slot),
           child: Container(
             decoration: BoxDecoration(
-              color: isDisabled
-                  ? Colors.grey.shade100
-                  : isSelected
-                      ? AppColors.primary
-                      : Colors.white,
+              color: bgColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isDisabled
-                    ? Colors.grey.shade300
-                    : isSelected
-                        ? AppColors.primary
-                        : AppColors.border,
+                color: borderColor,
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -68,31 +96,18 @@ class TimeSlotPicker extends StatelessWidget {
                   Text(
                     slot,
                     style: TextStyle(
-                      color: isDisabled
-                          ? Colors.grey
-                          : isSelected
-                              ? Colors.white
-                              : AppColors.textPrimary,
+                      color: textColor,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
                   ),
-                  if (isPast)
-                    Text(
-                      'Past',
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 10,
-                      ),
-                    )
-                  else if (isFull)
-                    Text(
-                      'Full',
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 10,
-                      ),
+                  Text(
+                    bottomText,
+                    style: TextStyle(
+                      color: bottomTextColor,
+                      fontSize: 10,
                     ),
+                  ),
                 ],
               ),
             ),

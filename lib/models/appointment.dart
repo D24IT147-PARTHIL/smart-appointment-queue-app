@@ -31,7 +31,7 @@ class Appointment extends HiveObject {
 
   /// Queue number assigned at booking time
   @HiveField(6)
-  final int queueNumber;
+  int queueNumber;
 
   /// Timestamp when appointment was created
   @HiveField(7)

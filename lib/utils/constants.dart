@@ -49,12 +49,11 @@ class AppointmentStatus {
 /// Available service types
 class ServiceTypes {
   static const List<String> all = [
+    'Regular Checkup',
+    'Follow-up Consultation',
+    'Vaccination',
     'General Consultation',
-    'Diagnostics',
-    'Follow-up',
-    'Account Management',
-    'Technical Support',
-    'Routine Consultation',
+    'Emergency Consultation',
   ];
 }
 
@@ -73,7 +72,7 @@ class TimeSlots {
 }
 
 /// Maximum appointments allowed per time slot
-const int maxAppointmentsPerSlot = 5;
+const int maxAppointmentsPerSlot = 2;
 
 /// Estimated minutes per appointment for queue calculation
 const int minutesPerAppointment = 10;

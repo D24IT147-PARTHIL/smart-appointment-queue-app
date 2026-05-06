@@ -174,7 +174,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     TextField(
                       controller: _nameController,
                       decoration: InputDecoration(
-                        hintText: 'John Doe',
+                        hintText: 'Your Name',
                         suffixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
                         filled: true, fillColor: AppColors.background,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -250,6 +250,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       pastSlots: pastSlots,
                       onSlotSelected: (s) => setState(() => _selectedTimeSlot = s),
                       onPastSlotTapped: () => _showError('Selected slot is no longer available'),
+                      onFullSlotTapped: () => _showError('Selected time slot is fully booked'),
                     ),
                     const SizedBox(height: 16),
 

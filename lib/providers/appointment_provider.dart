@@ -49,36 +49,19 @@ class AppointmentProvider extends ChangeNotifier {
       ..sort((a, b) => a.queueNumber.compareTo(b.queueNumber));
   }
 
-  /// Get completed appointments count for today
+  /// Get completed appointments count
   int get todayCompletedCount {
-    final now = DateTime.now();
-    return _appointments.where((a) {
-      return a.status == AppointmentStatus.completed &&
-          a.date.year == now.year &&
-          a.date.month == now.month &&
-          a.date.day == now.day;
-    }).length;
+    return _appointments.where((a) => a.status == AppointmentStatus.completed).length;
   }
 
-  /// Get cancelled appointments count for today
+  /// Get cancelled appointments count
   int get todayCancelledCount {
-    final now = DateTime.now();
-    return _appointments.where((a) {
-      return a.status == AppointmentStatus.cancelled &&
-          a.date.year == now.year &&
-          a.date.month == now.month &&
-          a.date.day == now.day;
-    }).length;
+    return _appointments.where((a) => a.status == AppointmentStatus.cancelled).length;
   }
 
-  /// Get total appointments count for today
+  /// Get total appointments count
   int get todayTotalCount {
-    final now = DateTime.now();
-    return _appointments.where((a) {
-      return a.date.year == now.year &&
-          a.date.month == now.month &&
-          a.date.day == now.day;
-    }).length;
+    return _appointments.length;
   }
 
   /// Get appointments filtered by search and filters
@@ -174,6 +157,28 @@ class AppointmentProvider extends ChangeNotifier {
   /// Load all appointments from Hive on startup
   void loadAppointments() {
     _appointments = HiveService.getAllAppointments();
+
+    // Dynamically regenerate queue numbers for scheduled appointments based on chronological order
+    final scheduled = _appointments
+        .where((a) => a.status == AppointmentStatus.scheduled)
+        .toList();
+
+    scheduled.sort((a, b) {
+      final aDateTime = getSlotDateTime(a.date, a.timeSlot);
+      final bDateTime = getSlotDateTime(b.date, b.timeSlot);
+      final cmp = aDateTime.compareTo(bDateTime);
+      if (cmp != 0) return cmp;
+
+      return a.createdAt.compareTo(b.createdAt);
+    });
+
+    for (int i = 0; i < scheduled.length; i++) {
+      if (scheduled[i].queueNumber != i + 1) {
+        scheduled[i].queueNumber = i + 1;
+        HiveService.updateAppointment(scheduled[i]);
+      }
+    }
+
     notifyListeners();
   }
 
@@ -196,7 +201,7 @@ class AppointmentProvider extends ChangeNotifier {
     // Check slot conflict (max 5 per slot)
     final slotCount = HiveService.countAppointmentsForSlot(date, timeSlot);
     if (slotCount >= maxAppointmentsPerSlot) {
-      return 'This time slot is full (max $maxAppointmentsPerSlot). Please choose another slot.';
+      return 'Selected time slot is fully booked';
     }
 
     // Generate unique ID (ensure no duplicates)

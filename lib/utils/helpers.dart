@@ -50,13 +50,8 @@ List<DateTime> getNextSevenDays() {
   return List.generate(7, (i) => today.add(Duration(days: i)));
 }
 
-/// Check if a time slot (e.g., "10:00 AM") is in the past for a given date.
-/// Returns true only when [date] is today AND the slot time has already passed.
-bool isSlotPast(DateTime date, String timeSlot) {
-  if (!isToday(date)) return false;
-
-  final now = DateTime.now();
-
+/// Convert a date and time slot (e.g., "10:00 AM") into a full DateTime object
+DateTime getSlotDateTime(DateTime date, String timeSlot) {
   // Parse the time slot string (format: "HH:MM AM/PM")
   final parts = timeSlot.split(' '); // ["10:00", "AM"]
   final timeParts = parts[0].split(':'); // ["10", "00"]
@@ -68,6 +63,15 @@ bool isSlotPast(DateTime date, String timeSlot) {
   if (period == 'PM' && hour != 12) hour += 12;
   if (period == 'AM' && hour == 12) hour = 0;
 
-  final slotTime = DateTime(now.year, now.month, now.day, hour, minute);
+  return DateTime(date.year, date.month, date.day, hour, minute);
+}
+
+/// Check if a time slot (e.g., "10:00 AM") is in the past for a given date.
+/// Returns true only when [date] is today AND the slot time has already passed.
+bool isSlotPast(DateTime date, String timeSlot) {
+  if (!isToday(date)) return false;
+  
+  final now = DateTime.now();
+  final slotTime = getSlotDateTime(now, timeSlot);
   return slotTime.isBefore(now);
 }

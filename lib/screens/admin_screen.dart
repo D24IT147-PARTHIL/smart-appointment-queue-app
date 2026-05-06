@@ -83,44 +83,27 @@ class AdminScreen extends StatelessWidget {
   Widget _buildStatsSection(AppointmentProvider provider) {
     return Column(
       children: [
-        // Total Today
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
+        // Total Today & Upcoming Queue row
+        Row(
+          children: [
+            Expanded(
+              child: _buildMiniStat(
+                icon: Icons.calendar_today,
+                label: 'TOTAL TODAY',
+                value: '${provider.todayTotalCount}',
+                color: AppColors.primary,
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'TOTAL TODAY',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
-                  letterSpacing: 0.8,
-                ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildMiniStat(
+                icon: Icons.people_outline,
+                label: 'UPCOMING QUEUE',
+                value: '${provider.waitingAppointments.length}',
+                color: AppColors.scheduled,
               ),
-              const SizedBox(height: 4),
-              Text(
-                '${provider.todayTotalCount}',
-                style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
 
